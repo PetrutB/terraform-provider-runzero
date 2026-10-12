@@ -7,18 +7,18 @@ import (
 )
 
 type Credential struct {
-	ID             string            `json:"id"`
-	ClientID       string            `json:"client_id"`
-	Name           string            `json:"name"`
-	Type           string            `json:"type"`
-	CreatedAt      int64             `json:"created_at"`
-	CreatedByID    string            `json:"created_by_id"`
-	CreatedByEmail string            `json:"created_by_email"`
-	ACL            map[string]any    `json:"acl"`
-	Global         bool              `json:"global"`
-	CIDRs          []string          `json:"cidrs"`
-	LastUsedAt     int64             `json:"last_used_at"`
-	LastUsedByID   string            `json:"last_used_by_id"`
+	ID             string         `json:"id"`
+	ClientID       string         `json:"client_id"`
+	Name           string         `json:"name"`
+	Type           string         `json:"type"`
+	CreatedAt      int64          `json:"created_at"`
+	CreatedByID    string         `json:"created_by_id"`
+	CreatedByEmail string         `json:"created_by_email"`
+	ACL            map[string]any `json:"acl"`
+	Global         bool           `json:"global"`
+	CIDRs          []string       `json:"cidrs"`
+	LastUsedAt     int64          `json:"last_used_at"`
+	LastUsedByID   string         `json:"last_used_by_id"`
 }
 
 type CreateCredentialRequest struct {

@@ -7,17 +7,17 @@ import (
 )
 
 type Group struct {
-	ID             string            `json:"id"`
-	Name           string            `json:"name"`
-	Description    string            `json:"description"`
-	RoleSummary    string            `json:"role_summary"`
-	UserCount      int64             `json:"user_count"`
-	CreatedByEmail string            `json:"created_by_email"`
-	ExpiresAt      int64             `json:"expires_at"`
-	OrgDefaultRole string            `json:"org_default_role"`
-	OrgRoles       map[string]any    `json:"org_roles"`
-	CreatedAt      int64             `json:"created_at"`
-	UpdatedAt      int64             `json:"updated_at"`
+	ID             string         `json:"id"`
+	Name           string         `json:"name"`
+	Description    string         `json:"description"`
+	RoleSummary    string         `json:"role_summary"`
+	UserCount      int64          `json:"user_count"`
+	CreatedByEmail string         `json:"created_by_email"`
+	ExpiresAt      int64          `json:"expires_at"`
+	OrgDefaultRole string         `json:"org_default_role"`
+	OrgRoles       map[string]any `json:"org_roles"`
+	CreatedAt      int64          `json:"created_at"`
+	UpdatedAt      int64          `json:"updated_at"`
 }
 
 type CreateGroupRequest struct {

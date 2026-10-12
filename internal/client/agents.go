@@ -7,25 +7,25 @@ import (
 )
 
 type Agent struct {
-	ID             string            `json:"id"`
-	ClientID       string            `json:"client_id"`
-	OrganizationID string            `json:"organization_id"`
-	SiteID         string            `json:"site_id"`
-	Name           string            `json:"name"`
-	HubID          string            `json:"hub_id"`
-	HostID         string            `json:"host_id"`
-	OS             string            `json:"os"`
-	Arch           string            `json:"arch"`
-	Version        string            `json:"version"`
-	ExternalIP     string            `json:"external_ip"`
-	InternalIP     string            `json:"internal_ip"`
-	Connected      bool              `json:"connected"`
-	Inactive       bool              `json:"inactive"`
-	LastCheckin    int64             `json:"last_checkin"`
-	CreatedAt      int64             `json:"created_at"`
-	UpdatedAt      int64             `json:"updated_at"`
-	DeactivatedAt  int64             `json:"deactivated_at"`
-	SystemInfo     map[string]any    `json:"system_info"`
+	ID             string         `json:"id"`
+	ClientID       string         `json:"client_id"`
+	OrganizationID string         `json:"organization_id"`
+	SiteID         string         `json:"site_id"`
+	Name           string         `json:"name"`
+	HubID          string         `json:"hub_id"`
+	HostID         string         `json:"host_id"`
+	OS             string         `json:"os"`
+	Arch           string         `json:"arch"`
+	Version        string         `json:"version"`
+	ExternalIP     string         `json:"external_ip"`
+	InternalIP     string         `json:"internal_ip"`
+	Connected      bool           `json:"connected"`
+	Inactive       bool           `json:"inactive"`
+	LastCheckin    int64          `json:"last_checkin"`
+	CreatedAt      int64          `json:"created_at"`
+	UpdatedAt      int64          `json:"updated_at"`
+	DeactivatedAt  int64          `json:"deactivated_at"`
+	SystemInfo     map[string]any `json:"system_info"`
 }
 
 type UpdateAgentRequest struct {
