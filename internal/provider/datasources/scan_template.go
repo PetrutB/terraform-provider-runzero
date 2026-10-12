@@ -250,7 +250,7 @@ func mapScanTemplateToDS(ctx context.Context, t *client.ScanTemplate, m *ScanTem
 	m.TemplateID = types.StringValue(t.TemplateID)
 	m.HostedZoneID = types.StringValue(t.HostedZoneID)
 	m.CustomIntegrationID = types.StringValue(t.CustomIntegrationID)
-	m.SourceID = types.StringValue(t.SourceID)
+	m.SourceID = types.StringValue(strconv.FormatInt(t.SourceID, 10))
 
 	params, d := types.MapValueFrom(ctx, types.StringType, t.Params)
 	diags.Append(d...)

@@ -34,7 +34,7 @@ type ScanTemplate struct {
 	RecurLastTaskID     string            `json:"recur_last_task_id"`
 	GracePeriod         int64             `json:"grace_period"`
 	CustomIntegrationID string            `json:"custom_integration_id"`
-	SourceID            string            `json:"source_id"`
+	SourceID            int64             `json:"source_id"`
 	TemplateID          string            `json:"template_id"`
 	SizeSite            int64             `json:"size_site"`
 	SizeData            int64             `json:"size_data"`
