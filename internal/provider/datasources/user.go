@@ -227,7 +227,11 @@ func mapUserToDS(ctx context.Context, u *client.User, m *UserDataSourceModel, di
 	m.CreatedAt = types.Int64Value(u.CreatedAt)
 	m.UpdatedAt = types.Int64Value(u.UpdatedAt)
 
-	orgRoles, d := types.MapValueFrom(ctx, types.StringType, u.OrgRoles)
+	orgRolesStr := make(map[string]string, len(u.OrgRoles))
+	for k, v := range u.OrgRoles {
+		orgRolesStr[k] = fmt.Sprintf("%v", v)
+	}
+	orgRoles, d := types.MapValueFrom(ctx, types.StringType, orgRolesStr)
 	diags.Append(d...)
 	m.OrgRoles = orgRoles
 }

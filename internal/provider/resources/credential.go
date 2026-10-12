@@ -303,7 +303,11 @@ func mapCredentialToState(ctx context.Context, cred *client.Credential, state *C
 	state.LastUsedAt = types.Int64Value(cred.LastUsedAt)
 	state.LastUsedByID = types.StringValue(cred.LastUsedByID)
 
-	aclMap, d := types.MapValueFrom(ctx, types.StringType, cred.ACL)
+	aclStrMap := make(map[string]string, len(cred.ACL))
+	for k, v := range cred.ACL {
+		aclStrMap[k] = fmt.Sprintf("%v", v)
+	}
+	aclMap, d := types.MapValueFrom(ctx, types.StringType, aclStrMap)
 	diags.Append(d...)
 	state.ACL = aclMap
 

@@ -14,7 +14,7 @@ type Credential struct {
 	CreatedAt      int64             `json:"created_at"`
 	CreatedByID    string            `json:"created_by_id"`
 	CreatedByEmail string            `json:"created_by_email"`
-	ACL            map[string]string `json:"acl"`
+	ACL            map[string]any    `json:"acl"`
 	Global         bool              `json:"global"`
 	CIDRs          []string          `json:"cidrs"`
 	LastUsedAt     int64             `json:"last_used_at"`

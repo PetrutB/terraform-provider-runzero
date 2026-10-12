@@ -22,7 +22,7 @@ type Task struct {
 	CreatedBy           string            `json:"created_by"`
 	CreatedByUserID     string            `json:"created_by_user_id"`
 	CustomIntegrationID string            `json:"custom_integration_id"`
-	SourceID            int               `json:"source_id"`
+	SourceID            int64             `json:"source_id"`
 	UpdatedAt           int64             `json:"updated_at"`
 	Type                string            `json:"type"`
 	Status              string            `json:"status"`

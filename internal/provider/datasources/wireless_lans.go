@@ -157,7 +157,7 @@ func (d *WirelessLANsDataSource) Read(ctx context.Context, req datasource.ReadRe
 			Type:           types.StringValue(l.Type),
 			Authentication: types.StringValue(l.Authentication),
 			Encryption:     types.StringValue(l.Encryption),
-			Signal:         types.Int64Value(int64(l.Signal)),
+			Signal:         types.Int64Value(l.Signal),
 			Channels:       types.StringValue(l.Channels),
 			Vendor:         types.StringValue(l.Vendor),
 		}

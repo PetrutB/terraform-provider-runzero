@@ -25,7 +25,7 @@ type Agent struct {
 	CreatedAt      int64             `json:"created_at"`
 	UpdatedAt      int64             `json:"updated_at"`
 	DeactivatedAt  int64             `json:"deactivated_at"`
-	SystemInfo     map[string]string `json:"system_info"`
+	SystemInfo     map[string]any    `json:"system_info"`
 }
 
 type UpdateAgentRequest struct {

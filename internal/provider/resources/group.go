@@ -251,7 +251,7 @@ func mapGroupToState(ctx context.Context, group *client.Group, state *GroupResou
 	if group.OrgRoles != nil {
 		elements := make(map[string]attr.Value, len(group.OrgRoles))
 		for k, v := range group.OrgRoles {
-			elements[k] = types.StringValue(v)
+			elements[k] = types.StringValue(fmt.Sprintf("%v", v))
 		}
 		state.OrgRoles = types.MapValueMust(types.StringType, elements)
 	} else {

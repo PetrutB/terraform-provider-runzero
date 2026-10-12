@@ -50,7 +50,7 @@ type Asset struct {
 	Tags               map[string]string `json:"tags"`
 	Attributes         map[string]string `json:"attributes"`
 	RTTs               map[string]any    `json:"rtts"`
-	Credentials        map[string]string `json:"credentials"`
+	Credentials        map[string]any    `json:"credentials"`
 	Services           map[string]any    `json:"services"`
 	RiskRank           float64           `json:"risk_rank"`
 	Risk               string            `json:"risk"`

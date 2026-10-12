@@ -19,7 +19,7 @@ type WirelessLAN struct {
 	Type           string            `json:"type"`
 	Authentication string            `json:"authentication"`
 	Encryption     string            `json:"encryption"`
-	Signal         int               `json:"signal"`
+	Signal         int64             `json:"signal"`
 	Channels       string            `json:"channels"`
 	Interface      string            `json:"interface"`
 	Vendor         string            `json:"vendor"`

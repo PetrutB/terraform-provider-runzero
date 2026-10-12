@@ -272,7 +272,7 @@ func mapInviteUserToState(user *client.User, state *UserInviteResourceModel) {
 	if user.OrgRoles != nil {
 		elements := make(map[string]attr.Value, len(user.OrgRoles))
 		for k, v := range user.OrgRoles {
-			elements[k] = types.StringValue(v)
+			elements[k] = types.StringValue(fmt.Sprintf("%v", v))
 		}
 		state.OrgRoles = types.MapValueMust(types.StringType, elements)
 	} else {

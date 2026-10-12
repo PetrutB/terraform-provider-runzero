@@ -5,7 +5,19 @@ All notable changes to the RunZero Terraform provider are documented in this fil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.2.0] - 2026-10-01
+
+### Fixed
+
+- `ScanTemplate.grace_period` — changed Go type from `string` to `int64` to match the
+  API's numeric JSON response, fixing `json: cannot unmarshal number into Go struct field`
+  errors on `runzero_scan_template` and `runzero_scan_templates` data sources.
+- `Credential.ACL`, `Asset.credentials`, `Agent.system_info`, `Explorer.system_info`,
+  `Group.org_roles`, `User.org_roles` — changed Go types from `map[string]string` to
+  `map[string]any` to match the Swagger `additionalProperties: true` definitions and
+  prevent unmarshal errors when the API returns non-string values.
+- `Task.source_id`, `WirelessLAN.signal` — changed Go type from `int` to `int64` for
+  consistency with all other integer fields and correctness on 32-bit platforms.
 
 ## [0.1.0] - 2026-10-01
 

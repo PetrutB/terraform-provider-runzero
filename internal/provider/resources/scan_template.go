@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -267,7 +268,7 @@ func (r *ScanTemplateResource) mapToModel(template *client.ScanTemplate, model *
 	model.StartTime = types.Int64Value(template.StartTime)
 	model.RecurLast = types.Int64Value(template.RecurLast)
 	model.RecurNext = types.Int64Value(template.RecurNext)
-	model.GracePeriod = types.StringValue(template.GracePeriod)
+	model.GracePeriod = types.StringValue(strconv.FormatInt(template.GracePeriod, 10))
 	model.Global = types.BoolValue(template.Global)
 	model.ACL = types.StringValue(encodeACL(template.ACL))
 	model.LinkedTaskCount = types.Int64Value(int64(template.LinkedTaskCount))

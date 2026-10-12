@@ -15,7 +15,7 @@ type Group struct {
 	CreatedByEmail string            `json:"created_by_email"`
 	ExpiresAt      int64             `json:"expires_at"`
 	OrgDefaultRole string            `json:"org_default_role"`
-	OrgRoles       map[string]string `json:"org_roles"`
+	OrgRoles       map[string]any    `json:"org_roles"`
 	CreatedAt      int64             `json:"created_at"`
 	UpdatedAt      int64             `json:"updated_at"`
 }

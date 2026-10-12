@@ -417,11 +417,18 @@ func mapAssetToDS(ctx context.Context, a *client.Asset, m *AssetDataSourceModel,
 	}{
 		{&m.Tags, a.Tags},
 		{&m.Attributes, a.Attributes},
-		{&m.Credentials, a.Credentials},
 	}
 	for _, f := range mapFields {
 		v, d := types.MapValueFrom(ctx, types.StringType, f.source)
 		diags.Append(d...)
 		*f.target = v
 	}
+
+	credStrMap := make(map[string]string, len(a.Credentials))
+	for k, v := range a.Credentials {
+		credStrMap[k] = fmt.Sprintf("%v", v)
+	}
+	credMap, d := types.MapValueFrom(ctx, types.StringType, credStrMap)
+	diags.Append(d...)
+	m.Credentials = credMap
 }

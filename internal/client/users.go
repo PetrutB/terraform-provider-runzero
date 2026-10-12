@@ -15,7 +15,7 @@ type User struct {
 	Email                 string            `json:"email"`
 	ClientAdmin           bool              `json:"client_admin"`
 	OrgDefaultRole        string            `json:"org_default_role"`
-	OrgRoles              map[string]string `json:"org_roles"`
+	OrgRoles              map[string]any    `json:"org_roles"`
 	SSOOnly               bool              `json:"sso_only"`
 	MFAEnabled            bool              `json:"mfa_enabled"`
 	LoginFailures         int64             `json:"login_failures"`

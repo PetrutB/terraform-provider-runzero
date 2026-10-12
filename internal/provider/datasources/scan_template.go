@@ -3,6 +3,7 @@ package datasources
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -243,7 +244,7 @@ func mapScanTemplateToDS(ctx context.Context, t *client.ScanTemplate, m *ScanTem
 	m.RecurLast = types.Int64Value(t.RecurLast)
 	m.RecurNext = types.Int64Value(t.RecurNext)
 	m.RecurLastTaskID = types.StringValue(t.RecurLastTaskID)
-	m.GracePeriod = types.StringValue(t.GracePeriod)
+	m.GracePeriod = types.StringValue(strconv.FormatInt(t.GracePeriod, 10))
 	m.Global = types.BoolValue(t.Global)
 	m.ParentID = types.StringValue(t.ParentID)
 	m.TemplateID = types.StringValue(t.TemplateID)

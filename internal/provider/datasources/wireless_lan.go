@@ -179,7 +179,7 @@ func (d *WirelessLANDataSource) Read(ctx context.Context, req datasource.ReadReq
 	state.Type = types.StringValue(lan.Type)
 	state.Authentication = types.StringValue(lan.Authentication)
 	state.Encryption = types.StringValue(lan.Encryption)
-	state.Signal = types.Int64Value(int64(lan.Signal))
+	state.Signal = types.Int64Value(lan.Signal)
 	state.Channels = types.StringValue(lan.Channels)
 	state.Interface = types.StringValue(lan.Interface)
 	state.Vendor = types.StringValue(lan.Vendor)
