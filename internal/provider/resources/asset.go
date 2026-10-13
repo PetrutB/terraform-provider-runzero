@@ -28,21 +28,21 @@ type AssetResource struct {
 }
 
 type AssetResourceModel struct {
-	ID          types.String `tfsdk:"id"`
-	Type        types.String `tfsdk:"type"`
-	OS          types.String `tfsdk:"os"`
-	OSVersion   types.String `tfsdk:"os_version"`
-	HW          types.String `tfsdk:"hw"`
-	SiteID      types.String `tfsdk:"site_id"`
-	Comments    types.String `tfsdk:"comments"`
-	Criticality types.String `tfsdk:"criticality"`
-	Risk        types.String `tfsdk:"risk"`
-	RiskRank    types.Int64  `tfsdk:"risk_rank"`
-	Alive       types.Bool   `tfsdk:"alive"`
-	FirstSeen   types.Int64  `tfsdk:"first_seen"`
-	LastSeen    types.Int64  `tfsdk:"last_seen"`
-	CreatedAt   types.Int64  `tfsdk:"created_at"`
-	UpdatedAt   types.Int64  `tfsdk:"updated_at"`
+	ID          types.String  `tfsdk:"id"`
+	Type        types.String  `tfsdk:"type"`
+	OS          types.String  `tfsdk:"os"`
+	OSVersion   types.String  `tfsdk:"os_version"`
+	HW          types.String  `tfsdk:"hw"`
+	SiteID      types.String  `tfsdk:"site_id"`
+	Comments    types.String  `tfsdk:"comments"`
+	Criticality types.String  `tfsdk:"criticality"`
+	Risk        types.String  `tfsdk:"risk"`
+	RiskRank    types.Float64 `tfsdk:"risk_rank"`
+	Alive       types.Bool    `tfsdk:"alive"`
+	FirstSeen   types.Int64   `tfsdk:"first_seen"`
+	LastSeen    types.Int64   `tfsdk:"last_seen"`
+	CreatedAt   types.Int64   `tfsdk:"created_at"`
+	UpdatedAt   types.Int64   `tfsdk:"updated_at"`
 }
 
 func NewAssetResource() resource.Resource {
@@ -101,7 +101,7 @@ func (r *AssetResource) Schema(_ context.Context, _ resource.SchemaRequest, resp
 				Description: "The risk level of the asset.",
 				Computed:    true,
 			},
-			"risk_rank": schema.Int64Attribute{
+			"risk_rank": schema.Float64Attribute{
 				Description: "The numeric risk rank (-1=none, 0=info, 4=critical).",
 				Computed:    true,
 			},
@@ -282,8 +282,9 @@ func (r *AssetResource) setStateFromAsset(model *AssetResourceModel, asset *clie
 	model.HW = types.StringValue(asset.HW)
 	model.SiteID = types.StringValue(asset.SiteID)
 	model.Comments = types.StringValue(asset.Comments)
+	model.Criticality = types.StringValue(asset.Criticality)
 	model.Risk = types.StringValue(asset.Risk)
-	model.RiskRank = types.Int64Value(int64(asset.RiskRank))
+	model.RiskRank = types.Float64Value(asset.RiskRank)
 	model.Alive = types.BoolValue(asset.Alive)
 	model.FirstSeen = types.Int64Value(asset.FirstSeen)
 	model.LastSeen = types.Int64Value(asset.LastSeen)

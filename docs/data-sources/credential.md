@@ -21,6 +21,8 @@ Fetches a single RunZero credential by ID.
 
 ### Read-Only
 
+- `acl` (Map of String) Access control list mapping organization UUIDs to permission levels.
+- `cidrs` (List of String) List of allowed CIDR ranges.
 - `client_id` (String) The client UUID.
 - `created_at` (Number) Unix timestamp when the credential was created.
 - `created_by_email` (String) Email of the user who created the credential.

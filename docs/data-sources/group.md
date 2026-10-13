@@ -27,6 +27,7 @@ Fetches a single RunZero group by ID.
 - `expires_at` (Number) Unix timestamp when the group expires.
 - `name` (String) The name of the group.
 - `org_default_role` (String) The default organization role for the group.
+- `org_roles` (Map of String) Map of organization IDs to roles.
 - `role_summary` (String) Summary of roles assigned to the group.
 - `updated_at` (Number) Unix timestamp when the group was last updated.
 - `user_count` (Number) Number of users in the group.

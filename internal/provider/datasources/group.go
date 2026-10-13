@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -29,6 +30,7 @@ type GroupDataSourceModel struct {
 	CreatedByEmail types.String `tfsdk:"created_by_email"`
 	ExpiresAt      types.Int64  `tfsdk:"expires_at"`
 	OrgDefaultRole types.String `tfsdk:"org_default_role"`
+	OrgRoles       types.Map    `tfsdk:"org_roles"`
 	CreatedAt      types.Int64  `tfsdk:"created_at"`
 	UpdatedAt      types.Int64  `tfsdk:"updated_at"`
 }
@@ -76,6 +78,11 @@ func (d *GroupDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, 
 			"org_default_role": schema.StringAttribute{
 				Description: "The default organization role for the group.",
 				Computed:    true,
+			},
+			"org_roles": schema.MapAttribute{
+				Description: "Map of organization IDs to roles.",
+				Computed:    true,
+				ElementType: types.StringType,
 			},
 			"created_at": schema.Int64Attribute{
 				Description: "Unix timestamp when the group was created.",
@@ -125,6 +132,17 @@ func (d *GroupDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 	state.CreatedByEmail = types.StringValue(group.CreatedByEmail)
 	state.ExpiresAt = types.Int64Value(group.ExpiresAt)
 	state.OrgDefaultRole = types.StringValue(group.OrgDefaultRole)
+
+	if group.OrgRoles != nil {
+		elements := make(map[string]attr.Value, len(group.OrgRoles))
+		for k, v := range group.OrgRoles {
+			elements[k] = types.StringValue(fmt.Sprintf("%v", v))
+		}
+		state.OrgRoles = types.MapValueMust(types.StringType, elements)
+	} else {
+		state.OrgRoles = types.MapNull(types.StringType)
+	}
+
 	state.CreatedAt = types.Int64Value(group.CreatedAt)
 	state.UpdatedAt = types.Int64Value(group.UpdatedAt)
 

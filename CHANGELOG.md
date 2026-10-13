@@ -11,6 +11,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `runzero_scan_template` / `runzero_scan_templates` data sources — added `acl` field
   (map of string) returned by the API but previously missing from the datasource schema.
+- `runzero_credential` / `runzero_credentials` data sources — added `acl` (map of string)
+  and `cidrs` (list of string) fields returned by the API but previously missing.
+- `runzero_group` / `runzero_groups` data sources — added `org_roles` (map of string)
+  field returned by the API but previously missing.
+
+### Changed
+
+- `runzero_scan_template` resource — changed `params` and `acl` from JSON-encoded
+  `types.String` to `types.Map` of string for proper Terraform map semantics.
+- `runzero_organization` resource — changed `expiration_assets_stale`,
+  `expiration_assets_offline`, `expiration_integration_attributes`, `expiration_scans`,
+  and `expiration_vulnerabilities` from `String` to `Int64` to match the API's numeric
+  type. Changed `keep_latest_integration_attributes` from `String` to `Bool`.
 
 ### Fixed
 
@@ -24,6 +37,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Scan` client struct — added 8 missing fields from the Swagger `TaskBase` schema:
   `template_id`, `cruncher_id`, `created_by_user_id`, `custom_integration_id`,
   `source_id`, `stats`, `parent_id`, `recur_last_task_id`.
+- `Service` client struct — `Credentials` type changed from `map[string]string` to
+  `map[string]any` to match Swagger `additionalProperties` with nested properties,
+  consistent with the `Asset` struct. `Attributes` type changed from `map[string]any`
+  to `map[string]string` to match Swagger `additionalProperties: { type: string }`,
+  consistent with the `Asset` struct.
+- `runzero_asset` resource — `risk_rank` changed from `Int64` to `Float64` to match
+  the Swagger `type: number` definition and the client struct's `float64` type.
 
 ### Audit
 
@@ -44,8 +64,6 @@ identified the following remaining field gaps:
 - `runzero_task` / `runzero_tasks` / `runzero_account_tasks` — `client_id`,
   `cruncher_id`, `created_by_user_id`, `custom_integration_id`, `source_id`, `params`,
   `stats`, `parent_id`, `recur_last_task_id`
-- `runzero_credential` / `runzero_credentials` — `acl`, `cidrs`
-- `runzero_group` / `runzero_groups` — `org_roles`
 - `runzero_site` / `runzero_sites` / `runzero_account_sites` — `subnets`
 - `runzero_service` / `runzero_services` — `service_data`, `service_screenshot_link`,
   `addresses`, `macs`, `names`, `domains`, `tags`, `rtts`, `credentials`, `services`

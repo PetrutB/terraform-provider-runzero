@@ -22,12 +22,12 @@ Manages a RunZero organization.
 ### Optional
 
 - `description` (String) Description of the organization.
-- `expiration_assets_offline` (String) Duration before assets are marked offline.
-- `expiration_assets_stale` (String) Duration before assets are marked stale.
-- `expiration_integration_attributes` (String) Duration before integration attributes expire.
-- `expiration_scans` (String) Duration before scans expire.
-- `expiration_vulnerabilities` (String) Duration before vulnerabilities expire.
-- `keep_latest_integration_attributes` (String) Whether to keep the latest integration attributes (as string boolean).
+- `expiration_assets_offline` (Number) Duration in seconds before assets are marked offline.
+- `expiration_assets_stale` (Number) Duration in seconds before assets are marked stale.
+- `expiration_integration_attributes` (Number) Duration in seconds before integration attributes expire.
+- `expiration_scans` (Number) Duration in seconds before scans expire.
+- `expiration_vulnerabilities` (Number) Duration in seconds before vulnerabilities expire.
+- `keep_latest_integration_attributes` (Boolean) Whether to keep the latest integration attributes.
 - `parent_id` (String) The parent organization ID.
 
 ### Read-Only

@@ -2,16 +2,17 @@ package resources
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
 
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -34,7 +35,7 @@ type ScanTemplateResourceModel struct {
 	ID              types.String `tfsdk:"id"`
 	Name            types.String `tfsdk:"name"`
 	Description     types.String `tfsdk:"description"`
-	Params          types.String `tfsdk:"params"`
+	Params          types.Map    `tfsdk:"params"`
 	OrganizationID  types.String `tfsdk:"organization_id"`
 	ClientID        types.String `tfsdk:"client_id"`
 	AgentID         types.String `tfsdk:"agent_id"`
@@ -52,7 +53,7 @@ type ScanTemplateResourceModel struct {
 	RecurNext       types.Int64  `tfsdk:"recur_next"`
 	GracePeriod     types.String `tfsdk:"grace_period"`
 	Global          types.Bool   `tfsdk:"global"`
-	ACL             types.String `tfsdk:"acl"`
+	ACL             types.Map    `tfsdk:"acl"`
 	LinkedTaskCount types.Int64  `tfsdk:"linked_task_count"`
 }
 
@@ -84,10 +85,11 @@ func (r *ScanTemplateResource) Schema(_ context.Context, _ resource.SchemaReques
 				Optional:    true,
 				Computed:    true,
 			},
-			"params": schema.StringAttribute{
-				Description: "JSON-encoded scan parameters for the template.",
+			"params": schema.MapAttribute{
+				Description: "Scan parameters for the template.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 			},
 			"organization_id": schema.StringAttribute{
 				Description: "The organization ID for the scan template.",
@@ -177,9 +179,13 @@ func (r *ScanTemplateResource) Schema(_ context.Context, _ resource.SchemaReques
 					boolplanmodifier.RequiresReplace(),
 				},
 			},
-			"acl": schema.StringAttribute{
-				Description: "JSON-encoded ACL map controlling template access.",
+			"acl": schema.MapAttribute{
+				Description: "Access control list mapping organization UUIDs to permission levels.",
 				Required:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Map{
+					mapplanmodifier.RequiresReplace(),
+				},
 			},
 			"linked_task_count": schema.Int64Attribute{
 				Description: "Number of tasks derived from the template.",
@@ -204,55 +210,10 @@ func (r *ScanTemplateResource) Configure(_ context.Context, req resource.Configu
 	r.client = c
 }
 
-func parseParams(s string) map[string]string {
-	if s == "" {
-		return nil
-	}
-	var params map[string]string
-	if err := json.Unmarshal([]byte(s), &params); err != nil {
-		return nil
-	}
-	return params
-}
-
-func encodeParams(params map[string]string) string {
-	if params == nil {
-		return ""
-	}
-	b, err := json.Marshal(params)
-	if err != nil {
-		return ""
-	}
-	return string(b)
-}
-
-func parseACL(s string) map[string]any {
-	if s == "" {
-		return nil
-	}
-	var acl map[string]any
-	if err := json.Unmarshal([]byte(s), &acl); err != nil {
-		return nil
-	}
-	return acl
-}
-
-func encodeACL(acl map[string]any) string {
-	if acl == nil {
-		return ""
-	}
-	b, err := json.Marshal(acl)
-	if err != nil {
-		return ""
-	}
-	return string(b)
-}
-
-func (r *ScanTemplateResource) mapToModel(template *client.ScanTemplate, model *ScanTemplateResourceModel) {
+func mapScanTemplateToState(ctx context.Context, template *client.ScanTemplate, model *ScanTemplateResourceModel, diags *diag.Diagnostics) {
 	model.ID = types.StringValue(template.ID)
 	model.Name = types.StringValue(template.Name)
 	model.Description = types.StringValue(template.Description)
-	model.Params = types.StringValue(encodeParams(template.Params))
 	model.OrganizationID = types.StringValue(template.OrganizationID)
 	model.ClientID = types.StringValue(template.ClientID)
 	model.AgentID = types.StringValue(template.AgentID)
@@ -270,8 +231,19 @@ func (r *ScanTemplateResource) mapToModel(template *client.ScanTemplate, model *
 	model.RecurNext = types.Int64Value(template.RecurNext)
 	model.GracePeriod = types.StringValue(strconv.FormatInt(template.GracePeriod, 10))
 	model.Global = types.BoolValue(template.Global)
-	model.ACL = types.StringValue(encodeACL(template.ACL))
 	model.LinkedTaskCount = types.Int64Value(int64(template.LinkedTaskCount))
+
+	params, d := types.MapValueFrom(ctx, types.StringType, template.Params)
+	diags.Append(d...)
+	model.Params = params
+
+	aclStrMap := make(map[string]string, len(template.ACL))
+	for k, v := range template.ACL {
+		aclStrMap[k] = fmt.Sprintf("%v", v)
+	}
+	acl, d := types.MapValueFrom(ctx, types.StringType, aclStrMap)
+	diags.Append(d...)
+	model.ACL = acl
 }
 
 func (r *ScanTemplateResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -281,20 +253,40 @@ func (r *ScanTemplateResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
+	paramsMap := make(map[string]string)
+	if !plan.Params.IsNull() && !plan.Params.IsUnknown() {
+		resp.Diagnostics.Append(plan.Params.ElementsAs(ctx, &paramsMap, false)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+	}
+
+	aclMap := make(map[string]string)
+	if !plan.ACL.IsNull() && !plan.ACL.IsUnknown() {
+		resp.Diagnostics.Append(plan.ACL.ElementsAs(ctx, &aclMap, false)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+	}
+	aclAny := make(map[string]any, len(aclMap))
+	for k, v := range aclMap {
+		aclAny[k] = v
+	}
+
 	template, err := r.client.CreateScanTemplate(ctx, client.CreateScanTemplateRequest{
 		Name:           plan.Name.ValueString(),
 		Description:    plan.Description.ValueString(),
 		OrganizationID: plan.OrganizationID.ValueString(),
-		Params:         parseParams(plan.Params.ValueString()),
+		Params:         paramsMap,
 		Global:         plan.Global.ValueBool(),
-		ACL:            parseACL(plan.ACL.ValueString()),
+		ACL:            aclAny,
 	})
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating scan template", err.Error())
 		return
 	}
 
-	r.mapToModel(template, &plan)
+	mapScanTemplateToState(ctx, template, &plan, &resp.Diagnostics)
 	tflog.Trace(ctx, "created scan template", map[string]interface{}{"id": template.ID})
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
@@ -317,7 +309,7 @@ func (r *ScanTemplateResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-	r.mapToModel(template, &state)
+	mapScanTemplateToState(ctx, template, &state, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
 
@@ -328,21 +320,41 @@ func (r *ScanTemplateResource) Update(ctx context.Context, req resource.UpdateRe
 		return
 	}
 
+	paramsMap := make(map[string]string)
+	if !plan.Params.IsNull() && !plan.Params.IsUnknown() {
+		resp.Diagnostics.Append(plan.Params.ElementsAs(ctx, &paramsMap, false)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+	}
+
+	aclMap := make(map[string]string)
+	if !plan.ACL.IsNull() && !plan.ACL.IsUnknown() {
+		resp.Diagnostics.Append(plan.ACL.ElementsAs(ctx, &aclMap, false)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+	}
+	aclAny := make(map[string]any, len(aclMap))
+	for k, v := range aclMap {
+		aclAny[k] = v
+	}
+
 	template, err := r.client.UpdateScanTemplate(ctx, client.UpdateScanTemplateRequest{
 		ID:             plan.ID.ValueString(),
 		Name:           plan.Name.ValueString(),
 		Description:    plan.Description.ValueString(),
 		OrganizationID: plan.OrganizationID.ValueString(),
-		Params:         parseParams(plan.Params.ValueString()),
+		Params:         paramsMap,
 		Global:         plan.Global.ValueBool(),
-		ACL:            parseACL(plan.ACL.ValueString()),
+		ACL:            aclAny,
 	})
 	if err != nil {
 		resp.Diagnostics.AddError("Error updating scan template", err.Error())
 		return
 	}
 
-	r.mapToModel(template, &plan)
+	mapScanTemplateToState(ctx, template, &plan, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 

@@ -28,7 +28,9 @@ type CredentialDataSourceModel struct {
 	CreatedAt      types.Int64  `tfsdk:"created_at"`
 	CreatedByID    types.String `tfsdk:"created_by_id"`
 	CreatedByEmail types.String `tfsdk:"created_by_email"`
+	ACL            types.Map    `tfsdk:"acl"`
 	Global         types.Bool   `tfsdk:"global"`
+	CIDRs          types.List   `tfsdk:"cidrs"`
 	LastUsedAt     types.Int64  `tfsdk:"last_used_at"`
 	LastUsedByID   types.String `tfsdk:"last_used_by_id"`
 }
@@ -76,7 +78,7 @@ func (d *CredentialDataSource) Read(ctx context.Context, req datasource.ReadRequ
 		return
 	}
 
-	mapCredentialToDS(credential, &state)
+	mapCredentialToDS(ctx, credential, &state, &resp.Diagnostics)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }

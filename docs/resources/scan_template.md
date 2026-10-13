@@ -17,7 +17,7 @@ Manages a RunZero scan template.
 
 ### Required
 
-- `acl` (String) JSON-encoded ACL map controlling template access.
+- `acl` (Map of String) Access control list mapping organization UUIDs to permission levels.
 - `global` (Boolean) Whether the template is globally available to all organizations.
 - `name` (String) The name of the scan template.
 - `organization_id` (String) The organization ID for the scan template.
@@ -27,7 +27,7 @@ Manages a RunZero scan template.
 - `description` (String) Description of the scan template.
 - `grace_period` (String) Additional time beyond hard expiration deadline.
 - `hidden` (Boolean) Whether the template is hidden from common view.
-- `params` (String) JSON-encoded scan parameters for the template.
+- `params` (Map of String) Scan parameters for the template.
 - `recur` (Boolean) Whether tasks derived from this template repeat.
 - `recur_frequency` (String) Execution frequency if recurring (once, hourly, daily, weekly, monthly, continuous).
 - `start_time` (Number) Unix timestamp for the next execution time.

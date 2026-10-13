@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -33,6 +34,7 @@ type GroupDSModel struct {
 	CreatedByEmail types.String `tfsdk:"created_by_email"`
 	ExpiresAt      types.Int64  `tfsdk:"expires_at"`
 	OrgDefaultRole types.String `tfsdk:"org_default_role"`
+	OrgRoles       types.Map    `tfsdk:"org_roles"`
 	CreatedAt      types.Int64  `tfsdk:"created_at"`
 	UpdatedAt      types.Int64  `tfsdk:"updated_at"`
 }
@@ -86,6 +88,11 @@ func (d *GroupsDataSource) Schema(_ context.Context, _ datasource.SchemaRequest,
 							Description: "The default organization role for the group.",
 							Computed:    true,
 						},
+						"org_roles": schema.MapAttribute{
+							Description: "Map of organization IDs to roles.",
+							Computed:    true,
+							ElementType: types.StringType,
+						},
 						"created_at": schema.Int64Attribute{
 							Description: "Unix timestamp when the group was created.",
 							Computed:    true,
@@ -131,6 +138,16 @@ func (d *GroupsDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 
 	state.Groups = make([]GroupDSModel, len(groups))
 	for i, g := range groups {
+		var orgRoles types.Map
+		if g.OrgRoles != nil {
+			elements := make(map[string]attr.Value, len(g.OrgRoles))
+			for k, v := range g.OrgRoles {
+				elements[k] = types.StringValue(fmt.Sprintf("%v", v))
+			}
+			orgRoles = types.MapValueMust(types.StringType, elements)
+		} else {
+			orgRoles = types.MapNull(types.StringType)
+		}
 		state.Groups[i] = GroupDSModel{
 			ID:             types.StringValue(g.ID),
 			Name:           types.StringValue(g.Name),
@@ -140,6 +157,7 @@ func (d *GroupsDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 			CreatedByEmail: types.StringValue(g.CreatedByEmail),
 			ExpiresAt:      types.Int64Value(g.ExpiresAt),
 			OrgDefaultRole: types.StringValue(g.OrgDefaultRole),
+			OrgRoles:       orgRoles,
 			CreatedAt:      types.Int64Value(g.CreatedAt),
 			UpdatedAt:      types.Int64Value(g.UpdatedAt),
 		}

@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -38,12 +39,12 @@ type OrganizationResourceModel struct {
 	ParentID                        types.String `tfsdk:"parent_id"`
 	AssetCount                      types.Int64  `tfsdk:"asset_count"`
 	ServiceCount                    types.Int64  `tfsdk:"service_count"`
-	ExpirationAssetsStale           types.String `tfsdk:"expiration_assets_stale"`
-	ExpirationAssetsOffline         types.String `tfsdk:"expiration_assets_offline"`
-	ExpirationIntegrationAttributes types.String `tfsdk:"expiration_integration_attributes"`
-	ExpirationScans                 types.String `tfsdk:"expiration_scans"`
-	ExpirationVulnerabilities       types.String `tfsdk:"expiration_vulnerabilities"`
-	KeepLatestIntegrationAttributes types.String `tfsdk:"keep_latest_integration_attributes"`
+	ExpirationAssetsStale           types.Int64  `tfsdk:"expiration_assets_stale"`
+	ExpirationAssetsOffline         types.Int64  `tfsdk:"expiration_assets_offline"`
+	ExpirationIntegrationAttributes types.Int64  `tfsdk:"expiration_integration_attributes"`
+	ExpirationScans                 types.Int64  `tfsdk:"expiration_scans"`
+	ExpirationVulnerabilities       types.Int64  `tfsdk:"expiration_vulnerabilities"`
+	KeepLatestIntegrationAttributes types.Bool   `tfsdk:"keep_latest_integration_attributes"`
 	CreatedAt                       types.Int64  `tfsdk:"created_at"`
 	UpdatedAt                       types.Int64  `tfsdk:"updated_at"`
 }
@@ -107,35 +108,38 @@ func (r *OrganizationResource) Schema(_ context.Context, _ resource.SchemaReques
 				Description: "Number of services in the organization.",
 				Computed:    true,
 			},
-			"expiration_assets_stale": schema.StringAttribute{
-				Description: "Duration before assets are marked stale.",
+			"expiration_assets_stale": schema.Int64Attribute{
+				Description: "Duration in seconds before assets are marked stale.",
 				Optional:    true,
 				Computed:    true,
 			},
-			"expiration_assets_offline": schema.StringAttribute{
-				Description: "Duration before assets are marked offline.",
+			"expiration_assets_offline": schema.Int64Attribute{
+				Description: "Duration in seconds before assets are marked offline.",
 				Optional:    true,
 				Computed:    true,
 			},
-			"expiration_integration_attributes": schema.StringAttribute{
-				Description: "Duration before integration attributes expire.",
+			"expiration_integration_attributes": schema.Int64Attribute{
+				Description: "Duration in seconds before integration attributes expire.",
 				Optional:    true,
 				Computed:    true,
 			},
-			"expiration_scans": schema.StringAttribute{
-				Description: "Duration before scans expire.",
+			"expiration_scans": schema.Int64Attribute{
+				Description: "Duration in seconds before scans expire.",
 				Optional:    true,
 				Computed:    true,
 			},
-			"expiration_vulnerabilities": schema.StringAttribute{
-				Description: "Duration before vulnerabilities expire.",
+			"expiration_vulnerabilities": schema.Int64Attribute{
+				Description: "Duration in seconds before vulnerabilities expire.",
 				Optional:    true,
 				Computed:    true,
 			},
-			"keep_latest_integration_attributes": schema.StringAttribute{
-				Description: "Whether to keep the latest integration attributes (as string boolean).",
+			"keep_latest_integration_attributes": schema.BoolAttribute{
+				Description: "Whether to keep the latest integration attributes.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"created_at": schema.Int64Attribute{
 				Description: "Unix timestamp when the organization was created.",
@@ -178,12 +182,12 @@ func (r *OrganizationResource) Create(ctx context.Context, req resource.CreateRe
 		Name:                            plan.Name.ValueString(),
 		Description:                     plan.Description.ValueString(),
 		ParentID:                        plan.ParentID.ValueString(),
-		ExpirationAssetsStale:           plan.ExpirationAssetsStale.ValueString(),
-		ExpirationAssetsOffline:         plan.ExpirationAssetsOffline.ValueString(),
-		ExpirationIntegrationAttributes: plan.ExpirationIntegrationAttributes.ValueString(),
-		ExpirationScans:                 plan.ExpirationScans.ValueString(),
-		ExpirationVulnerabilities:       plan.ExpirationVulnerabilities.ValueString(),
-		KeepLatestIntegrationAttributes: plan.KeepLatestIntegrationAttributes.ValueString(),
+		ExpirationAssetsStale:           strconv.FormatInt(plan.ExpirationAssetsStale.ValueInt64(), 10),
+		ExpirationAssetsOffline:         strconv.FormatInt(plan.ExpirationAssetsOffline.ValueInt64(), 10),
+		ExpirationIntegrationAttributes: strconv.FormatInt(plan.ExpirationIntegrationAttributes.ValueInt64(), 10),
+		ExpirationScans:                 strconv.FormatInt(plan.ExpirationScans.ValueInt64(), 10),
+		ExpirationVulnerabilities:       strconv.FormatInt(plan.ExpirationVulnerabilities.ValueInt64(), 10),
+		KeepLatestIntegrationAttributes: strconv.FormatBool(plan.KeepLatestIntegrationAttributes.ValueBool()),
 	})
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating organization", err.Error())
@@ -233,12 +237,12 @@ func (r *OrganizationResource) Update(ctx context.Context, req resource.UpdateRe
 	org, err := r.client.UpdateOrganization(ctx, state.ID.ValueString(), client.UpdateOrganizationRequest{
 		Name:                            plan.Name.ValueString(),
 		Description:                     plan.Description.ValueString(),
-		ExpirationAssetsStale:           plan.ExpirationAssetsStale.ValueString(),
-		ExpirationAssetsOffline:         plan.ExpirationAssetsOffline.ValueString(),
-		ExpirationIntegrationAttributes: plan.ExpirationIntegrationAttributes.ValueString(),
-		ExpirationScans:                 plan.ExpirationScans.ValueString(),
-		ExpirationVulnerabilities:       plan.ExpirationVulnerabilities.ValueString(),
-		KeepLatestIntegrationAttributes: plan.KeepLatestIntegrationAttributes.ValueString(),
+		ExpirationAssetsStale:           strconv.FormatInt(plan.ExpirationAssetsStale.ValueInt64(), 10),
+		ExpirationAssetsOffline:         strconv.FormatInt(plan.ExpirationAssetsOffline.ValueInt64(), 10),
+		ExpirationIntegrationAttributes: strconv.FormatInt(plan.ExpirationIntegrationAttributes.ValueInt64(), 10),
+		ExpirationScans:                 strconv.FormatInt(plan.ExpirationScans.ValueInt64(), 10),
+		ExpirationVulnerabilities:       strconv.FormatInt(plan.ExpirationVulnerabilities.ValueInt64(), 10),
+		KeepLatestIntegrationAttributes: strconv.FormatBool(plan.KeepLatestIntegrationAttributes.ValueBool()),
 	})
 	if err != nil {
 		resp.Diagnostics.AddError("Error updating organization", err.Error())
@@ -277,12 +281,12 @@ func mapOrgToState(org *client.Organization, state *OrganizationResourceModel) {
 	state.ParentID = types.StringValue(org.ParentID)
 	state.AssetCount = types.Int64Value(org.AssetCount)
 	state.ServiceCount = types.Int64Value(org.ServiceCount)
-	state.ExpirationAssetsStale = types.StringValue(strconv.FormatInt(org.ExpirationAssetsStale, 10))
-	state.ExpirationAssetsOffline = types.StringValue(strconv.FormatInt(org.ExpirationAssetsOffline, 10))
-	state.ExpirationIntegrationAttributes = types.StringValue(strconv.FormatInt(org.ExpirationIntegrationAttributes, 10))
-	state.ExpirationScans = types.StringValue(strconv.FormatInt(org.ExpirationScans, 10))
-	state.ExpirationVulnerabilities = types.StringValue(strconv.FormatInt(org.ExpirationVulnerabilities, 10))
-	state.KeepLatestIntegrationAttributes = types.StringValue(strconv.FormatBool(org.KeepLatestIntegrationAttributes))
+	state.ExpirationAssetsStale = types.Int64Value(org.ExpirationAssetsStale)
+	state.ExpirationAssetsOffline = types.Int64Value(org.ExpirationAssetsOffline)
+	state.ExpirationIntegrationAttributes = types.Int64Value(org.ExpirationIntegrationAttributes)
+	state.ExpirationScans = types.Int64Value(org.ExpirationScans)
+	state.ExpirationVulnerabilities = types.Int64Value(org.ExpirationVulnerabilities)
+	state.KeepLatestIntegrationAttributes = types.BoolValue(org.KeepLatestIntegrationAttributes)
 	state.CreatedAt = types.Int64Value(org.CreatedAt)
 	state.UpdatedAt = types.Int64Value(org.UpdatedAt)
 }

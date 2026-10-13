@@ -62,9 +62,9 @@ type Service struct {
 	AgentName             string            `json:"agent_name"`
 	Tags                  map[string]string `json:"tags"`
 	RTTs                  map[string]any    `json:"rtts"`
-	Credentials           map[string]string `json:"credentials"`
+	Credentials           map[string]any    `json:"credentials"`
 	Services              map[string]any    `json:"services"`
-	Attributes            map[string]any    `json:"attributes"`
+	Attributes            map[string]string `json:"attributes"`
 }
 
 func (c *Client) ListServices(ctx context.Context, search string) ([]Service, error) {

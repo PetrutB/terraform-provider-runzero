@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	"github.com/petrutb/terraform-provider-runzero/internal/client"
@@ -32,7 +33,9 @@ type CredentialDSModel struct {
 	CreatedAt      types.Int64  `tfsdk:"created_at"`
 	CreatedByID    types.String `tfsdk:"created_by_id"`
 	CreatedByEmail types.String `tfsdk:"created_by_email"`
+	ACL            types.Map    `tfsdk:"acl"`
 	Global         types.Bool   `tfsdk:"global"`
+	CIDRs          types.List   `tfsdk:"cidrs"`
 	LastUsedAt     types.Int64  `tfsdk:"last_used_at"`
 	LastUsedByID   types.String `tfsdk:"last_used_by_id"`
 }
@@ -90,6 +93,28 @@ func (d *CredentialsDataSource) Read(ctx context.Context, req datasource.ReadReq
 
 	state.Credentials = make([]CredentialDSModel, len(credentials))
 	for i, c := range credentials {
+		var acl types.Map
+		if c.ACL != nil {
+			aclStrMap := make(map[string]string, len(c.ACL))
+			for k, v := range c.ACL {
+				aclStrMap[k] = fmt.Sprintf("%v", v)
+			}
+			aclVal, d := types.MapValueFrom(ctx, types.StringType, aclStrMap)
+			resp.Diagnostics.Append(d...)
+			acl = aclVal
+		} else {
+			acl = types.MapNull(types.StringType)
+		}
+
+		var cidrs types.List
+		if c.CIDRs != nil {
+			cidrsVal, d := types.ListValueFrom(ctx, types.StringType, c.CIDRs)
+			resp.Diagnostics.Append(d...)
+			cidrs = cidrsVal
+		} else {
+			cidrs = types.ListNull(types.StringType)
+		}
+
 		state.Credentials[i] = CredentialDSModel{
 			ID:             types.StringValue(c.ID),
 			ClientID:       types.StringValue(c.ClientID),
@@ -98,7 +123,9 @@ func (d *CredentialsDataSource) Read(ctx context.Context, req datasource.ReadReq
 			CreatedAt:      types.Int64Value(c.CreatedAt),
 			CreatedByID:    types.StringValue(c.CreatedByID),
 			CreatedByEmail: types.StringValue(c.CreatedByEmail),
+			ACL:            acl,
 			Global:         types.BoolValue(c.Global),
+			CIDRs:          cidrs,
 			LastUsedAt:     types.Int64Value(c.LastUsedAt),
 			LastUsedByID:   types.StringValue(c.LastUsedByID),
 		}
@@ -138,9 +165,19 @@ func credentialDSSchemaAttributes(idRequired bool) map[string]schema.Attribute {
 			Description: "Email of the user who created the credential.",
 			Computed:    true,
 		},
+		"acl": schema.MapAttribute{
+			Description: "Access control list mapping organization UUIDs to permission levels.",
+			Computed:    true,
+			ElementType: types.StringType,
+		},
 		"global": schema.BoolAttribute{
 			Description: "Whether the credential is globally available.",
 			Computed:    true,
+		},
+		"cidrs": schema.ListAttribute{
+			Description: "List of allowed CIDR ranges.",
+			Computed:    true,
+			ElementType: types.StringType,
 		},
 		"last_used_at": schema.Int64Attribute{
 			Description: "Unix timestamp when the credential was last used.",
@@ -154,7 +191,7 @@ func credentialDSSchemaAttributes(idRequired bool) map[string]schema.Attribute {
 	return attrs
 }
 
-func mapCredentialToDS(c *client.Credential, state *CredentialDataSourceModel) {
+func mapCredentialToDS(ctx context.Context, c *client.Credential, state *CredentialDataSourceModel, diags *diag.Diagnostics) {
 	state.ID = types.StringValue(c.ID)
 	state.ClientID = types.StringValue(c.ClientID)
 	state.Name = types.StringValue(c.Name)
@@ -165,4 +202,24 @@ func mapCredentialToDS(c *client.Credential, state *CredentialDataSourceModel) {
 	state.Global = types.BoolValue(c.Global)
 	state.LastUsedAt = types.Int64Value(c.LastUsedAt)
 	state.LastUsedByID = types.StringValue(c.LastUsedByID)
+
+	if c.ACL != nil {
+		aclStrMap := make(map[string]string, len(c.ACL))
+		for k, v := range c.ACL {
+			aclStrMap[k] = fmt.Sprintf("%v", v)
+		}
+		acl, d := types.MapValueFrom(ctx, types.StringType, aclStrMap)
+		diags.Append(d...)
+		state.ACL = acl
+	} else {
+		state.ACL = types.MapNull(types.StringType)
+	}
+
+	if c.CIDRs != nil {
+		cidrs, d := types.ListValueFrom(ctx, types.StringType, c.CIDRs)
+		diags.Append(d...)
+		state.CIDRs = cidrs
+	} else {
+		state.CIDRs = types.ListNull(types.StringType)
+	}
 }
