@@ -24,6 +24,7 @@ Fetches all RunZero scan templates.
 
 Read-Only:
 
+- `acl` (Map of String) A map of IDs to strings which describe how the template may be accessed.
 - `agent_id` (String) The agent UUID.
 - `client_id` (String) The client UUID.
 - `created_at` (Number) Unix timestamp when the scan template was created.

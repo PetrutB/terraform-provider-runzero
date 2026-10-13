@@ -5,6 +5,75 @@ All notable changes to the RunZero Terraform provider are documented in this fil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.4] - 2026-10-13
+
+### Added
+
+- `runzero_scan_template` / `runzero_scan_templates` data sources — added `acl` field
+  (map of string) returned by the API but previously missing from the datasource schema.
+
+### Fixed
+
+- `Service` client struct — added 25 missing fields from the Swagger `Service` schema:
+  `service_screenshot_link`, `detected_by`, `os_version`, `addresses_extra`,
+  `mac_vendors`, `service_count`, `service_count_tcp`, `service_count_udp`,
+  `service_count_arp`, `service_count_icmp`, `lowest_ttl`, `lowest_rtt`,
+  `last_agent_id`, `last_task_id`, `newest_mac`, `newest_mac_vendor`, `newest_mac_age`,
+  `service_ports_tcp`, `service_ports_udp`, `service_ports_protocols`,
+  `service_ports_products`, `org_name`, `site_name`, `agent_name`, `attributes`.
+- `Scan` client struct — added 8 missing fields from the Swagger `TaskBase` schema:
+  `template_id`, `cruncher_id`, `created_by_user_id`, `custom_integration_id`,
+  `source_id`, `stats`, `parent_id`, `recur_last_task_id`.
+
+### Audit
+
+Full Swagger spec audit (`SWAGGER_4.0.251021.0`) of all resources and data sources
+identified the following remaining field gaps:
+
+**Data sources missing fields:**
+
+- `runzero_organization` / `runzero_organizations` — `download_token`,
+  `download_token_created_at`, `deactivated_at`, `service_count_tcp`,
+  `service_count_udp`, `service_count_arp`, `service_count_icmp`
+- `runzero_agent` / `runzero_agents` — `client_id`, `host_id`, `hub_id`, `system_info`,
+  `deactivated_at`
+- `runzero_explorer` / `runzero_explorers` — `client_id`, `host_id`, `hub_id`,
+  `system_info`, `deactivated_at`
+- `runzero_scan_template` / `runzero_scan_templates` — `cruncher_id`, `error`, `stats`,
+  `size_site`, `size_data`, `size_results`, `linked_task_count`
+- `runzero_task` / `runzero_tasks` / `runzero_account_tasks` — `client_id`,
+  `cruncher_id`, `created_by_user_id`, `custom_integration_id`, `source_id`, `params`,
+  `stats`, `parent_id`, `recur_last_task_id`
+- `runzero_credential` / `runzero_credentials` — `acl`, `cidrs`
+- `runzero_group` / `runzero_groups` — `org_roles`
+- `runzero_site` / `runzero_sites` / `runzero_account_sites` — `subnets`
+- `runzero_service` / `runzero_services` — `service_data`, `service_screenshot_link`,
+  `addresses`, `macs`, `names`, `domains`, `tags`, `rtts`, `credentials`, `services`
+- `runzero_wireless_lan` / `runzero_wireless_lans` — `data`
+- `runzero_asset` / `runzero_assets` — `services`, `rtts`
+- `runzero_license` — `settings`
+- `runzero_hosted_zones` (plural only) — `processor_id`
+
+**Resources missing read-only response fields:**
+
+- `runzero_organization` — `download_token`, `download_token_created_at`,
+  `deactivated_at`, `service_count_tcp`, `service_count_udp`, `service_count_arp`,
+  `service_count_icmp`
+- `runzero_agent` — `host_id`, `hub_id`, `system_info`
+- `runzero_explorer` — `host_id`, `hub_id`, `system_info`
+- `runzero_scan_template` — `cruncher_id`, `created_by_user_id`, `error`, `stats`,
+  `parent_id`, `custom_integration_id`, `source_id`, `template_id`, `size_site`,
+  `size_data`, `size_results`, `hosted_zone_id`, `recur_last_task_id`
+- `runzero_site` — `subnets`
+- `runzero_user` — `client_id`, `name`, `login_failures`, `last_login_ip`,
+  `last_login_at`, `last_login_ua`, `last_activity_at`, `actions`, `last_action_at`,
+  `invite_token_expiration`, `reset_token_expiration`, `password_enabled_at`,
+  `terms_agreed_as_of`
+
+**Fully aligned (no gaps):** API Key, Org API Key, Export Token, SSO Group Mapping,
+Custom Integration, Asset Ownership Type, Health, User (datasource), Hosted Zone
+(singular).
+
 ## [0.2.3] - 2026-10-01
 
 ### Fixed
@@ -149,5 +218,10 @@ Additional data sources:
   imperative actions (bulk asset operations, user resets, task logs and data) are out of
   scope for this provider.
 
-[Unreleased]: https://github.com/petrutb/terraform-provider-runzero/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/petrutb/terraform-provider-runzero/compare/v0.2.4...HEAD
+[0.2.4]: https://github.com/petrutb/terraform-provider-runzero/compare/v0.2.3...v0.2.4
+[0.2.3]: https://github.com/petrutb/terraform-provider-runzero/compare/v0.2.2...v0.2.3
+[0.2.2]: https://github.com/petrutb/terraform-provider-runzero/compare/v0.2.1...v0.2.2
+[0.2.1]: https://github.com/petrutb/terraform-provider-runzero/compare/v0.2.0...v0.2.1
+[0.2.0]: https://github.com/petrutb/terraform-provider-runzero/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/petrutb/terraform-provider-runzero/releases/tag/v0.1.0

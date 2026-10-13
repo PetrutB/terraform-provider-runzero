@@ -51,6 +51,7 @@ type ScanTemplateDataSourceModel struct {
 	CustomIntegrationID types.String `tfsdk:"custom_integration_id"`
 	SourceID            types.String `tfsdk:"source_id"`
 	Params              types.Map    `tfsdk:"params"`
+	ACL                 types.Map    `tfsdk:"acl"`
 }
 
 func NewScanTemplateDataSource() datasource.DataSource {
@@ -220,6 +221,11 @@ func scanTemplateDSSchemaAttributes() map[string]schema.Attribute {
 			Computed:    true,
 			ElementType: types.StringType,
 		},
+		"acl": schema.MapAttribute{
+			Description: "A map of IDs to strings which describe how the template may be accessed.",
+			Computed:    true,
+			ElementType: types.StringType,
+		},
 	}
 }
 
@@ -255,4 +261,12 @@ func mapScanTemplateToDS(ctx context.Context, t *client.ScanTemplate, m *ScanTem
 	params, d := types.MapValueFrom(ctx, types.StringType, t.Params)
 	diags.Append(d...)
 	m.Params = params
+
+	aclStrMap := make(map[string]string, len(t.ACL))
+	for k, v := range t.ACL {
+		aclStrMap[k] = fmt.Sprintf("%v", v)
+	}
+	acl, d := types.MapValueFrom(ctx, types.StringType, aclStrMap)
+	diags.Append(d...)
+	m.ACL = acl
 }

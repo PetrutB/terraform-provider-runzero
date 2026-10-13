@@ -43,27 +43,35 @@ type CreateScanRequest struct {
 }
 
 type Scan struct {
-	ID             string            `json:"id"`
-	Name           string            `json:"name"`
-	Description    string            `json:"description"`
-	ClientID       string            `json:"client_id"`
-	OrganizationID string            `json:"organization_id"`
-	SiteID         string            `json:"site_id"`
-	AgentID        string            `json:"agent_id"`
-	HostedZoneID   string            `json:"hosted_zone_id"`
-	Type           string            `json:"type"`
-	Status         string            `json:"status"`
-	Error          string            `json:"error"`
-	Params         map[string]string `json:"params"`
-	Hidden         bool              `json:"hidden"`
-	Recur          bool              `json:"recur"`
-	RecurFrequency string            `json:"recur_frequency"`
-	CreatedAt      int64             `json:"created_at"`
-	UpdatedAt      int64             `json:"updated_at"`
-	StartTime      int64             `json:"start_time"`
-	RecurLast      int64             `json:"recur_last"`
-	RecurNext      int64             `json:"recur_next"`
-	CreatedBy      string            `json:"created_by"`
+	ID                  string            `json:"id"`
+	Name                string            `json:"name"`
+	Description         string            `json:"description"`
+	TemplateID          string            `json:"template_id"`
+	ClientID            string            `json:"client_id"`
+	OrganizationID      string            `json:"organization_id"`
+	SiteID              string            `json:"site_id"`
+	AgentID             string            `json:"agent_id"`
+	HostedZoneID        string            `json:"hosted_zone_id"`
+	CruncherID          string            `json:"cruncher_id"`
+	Type                string            `json:"type"`
+	Status              string            `json:"status"`
+	Error               string            `json:"error"`
+	Params              map[string]string `json:"params"`
+	Stats               map[string]any    `json:"stats"`
+	Hidden              bool              `json:"hidden"`
+	ParentID            string            `json:"parent_id"`
+	Recur               bool              `json:"recur"`
+	RecurFrequency      string            `json:"recur_frequency"`
+	CreatedAt           int64             `json:"created_at"`
+	CreatedBy           string            `json:"created_by"`
+	CreatedByUserID     string            `json:"created_by_user_id"`
+	CustomIntegrationID string            `json:"custom_integration_id"`
+	SourceID            int64             `json:"source_id"`
+	UpdatedAt           int64             `json:"updated_at"`
+	StartTime           int64             `json:"start_time"`
+	RecurLast           int64             `json:"recur_last"`
+	RecurNext           int64             `json:"recur_next"`
+	RecurLastTaskID     string            `json:"recur_last_task_id"`
 }
 
 func (c *Client) CreateScan(ctx context.Context, siteID string, req CreateScanRequest) (*Scan, error) {
