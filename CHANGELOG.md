@@ -5,17 +5,32 @@ All notable changes to the RunZero Terraform provider are documented in this fil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.2.8] - 2026-10-13
+## [0.2.9] - 2026-10-13
 
 ### Fixed
 
-- `ServerEnrichedMap()` plan modifier — split into two variants to fix
-  `Provider produced invalid plan` errors on resource creation for
-  `runzero_group` and `runzero_user`. `ServerEnrichedMap()` now passes the
-  config value through on create (correct for `org_roles` where the API
-  returns exactly what was sent). `ServerEnrichedMapUnknownOnCreate()` marks
-  the plan as unknown on create (correct for `runzero_scan_template.params`
-  where the API enriches the map with 30+ server-side defaults).
+- `ServerEnrichedMap()` plan modifier — removed the `MapUnknown` behavior on
+  create that caused `Provider produced invalid plan` errors. Terraform core
+  rejects setting a planned value to unknown when the config provides a known
+  value. The modifier now passes config through on create for all resources.
+- `runzero_scan_template` resource — the `Create` function now preserves the
+  user's configured `params` in state instead of the full API response. This
+  prevents post-apply consistency errors when the API enriches the map with
+  server-side defaults. On the next plan/refresh, `Read` fetches the full set
+  and the merge modifier handles subsequent plans.
+
+## [0.2.8] - 2026-10-13
+
+### Added
+
+- `ServerEnrichedMapUnknownOnCreate()` plan modifier variant for attributes
+  where the server fully replaces the map on create (e.g., `scan_template.params`).
+
+### Changed
+
+- Split `ServerEnrichedMap()` plan modifier into two variants: the base version
+  passes config through on create, while `UnknownOnCreate` marks the plan as
+  unknown to allow the server response through.
 
 ## [0.2.7] - 2026-10-13
 
@@ -281,7 +296,8 @@ Additional data sources:
   imperative actions (bulk asset operations, user resets, task logs and data) are out of
   scope for this provider.
 
-[Unreleased]: https://github.com/petrutb/terraform-provider-runzero/compare/v0.2.8...HEAD
+[Unreleased]: https://github.com/petrutb/terraform-provider-runzero/compare/v0.2.9...HEAD
+[0.2.9]: https://github.com/petrutb/terraform-provider-runzero/compare/v0.2.8...v0.2.9
 [0.2.8]: https://github.com/petrutb/terraform-provider-runzero/compare/v0.2.7...v0.2.8
 [0.2.7]: https://github.com/petrutb/terraform-provider-runzero/compare/v0.2.6...v0.2.7
 [0.2.6]: https://github.com/petrutb/terraform-provider-runzero/compare/v0.2.5...v0.2.6

@@ -9,16 +9,10 @@ import (
 )
 
 func ServerEnrichedMap() planmodifier.Map {
-	return serverEnrichedMapModifier{unknownOnCreate: false}
+	return serverEnrichedMapModifier{}
 }
 
-func ServerEnrichedMapUnknownOnCreate() planmodifier.Map {
-	return serverEnrichedMapModifier{unknownOnCreate: true}
-}
-
-type serverEnrichedMapModifier struct {
-	unknownOnCreate bool
-}
+type serverEnrichedMapModifier struct{}
 
 func (m serverEnrichedMapModifier) Description(_ context.Context) string {
 	return "Merges user-configured map keys with server-enriched state to prevent drift from API-added defaults."
@@ -30,9 +24,6 @@ func (m serverEnrichedMapModifier) MarkdownDescription(ctx context.Context) stri
 
 func (m serverEnrichedMapModifier) PlanModifyMap(_ context.Context, req planmodifier.MapRequest, resp *planmodifier.MapResponse) {
 	if req.StateValue.IsNull() {
-		if m.unknownOnCreate && !req.ConfigValue.IsNull() && !req.ConfigValue.IsUnknown() {
-			resp.PlanValue = types.MapUnknown(types.StringType)
-		}
 		return
 	}
 

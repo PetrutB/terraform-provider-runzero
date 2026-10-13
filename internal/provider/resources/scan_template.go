@@ -92,7 +92,7 @@ func (r *ScanTemplateResource) Schema(_ context.Context, _ resource.SchemaReques
 				Computed:    true,
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Map{
-					planmodifiers.ServerEnrichedMapUnknownOnCreate(),
+					planmodifiers.ServerEnrichedMap(),
 				},
 			},
 			"organization_id": schema.StringAttribute{
@@ -290,7 +290,9 @@ func (r *ScanTemplateResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
+	configParams := plan.Params
 	mapScanTemplateToState(ctx, template, &plan, &resp.Diagnostics)
+	plan.Params = configParams
 	tflog.Trace(ctx, "created scan template", map[string]interface{}{"id": template.ID})
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
