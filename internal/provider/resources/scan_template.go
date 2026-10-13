@@ -315,7 +315,11 @@ func (r *ScanTemplateResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
+	priorParams := state.Params
 	mapScanTemplateToState(ctx, template, &state, &resp.Diagnostics)
+	if !priorParams.IsNull() && !priorParams.IsUnknown() {
+		state.Params = filterMapToKeys(ctx, state.Params, priorParams, &resp.Diagnostics)
+	}
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
 
@@ -360,7 +364,9 @@ func (r *ScanTemplateResource) Update(ctx context.Context, req resource.UpdateRe
 		return
 	}
 
+	configParams := plan.Params
 	mapScanTemplateToState(ctx, template, &plan, &resp.Diagnostics)
+	plan.Params = configParams
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 

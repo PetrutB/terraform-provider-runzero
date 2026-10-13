@@ -5,6 +5,23 @@ All notable changes to the RunZero Terraform provider are documented in this fil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.10] - 2026-10-13
+
+### Fixed
+
+- `ServerEnrichedMap()` plan modifier — removed merge logic that combined config
+  and state maps. Terraform core requires that a planned value for
+  `Optional + Computed` attributes must equal either the config value or the
+  prior state value; a merged map matching neither was rejected with
+  `planned value does not match config value nor prior value`. The modifier now
+  only preserves prior state when config is null/unknown, and passes config
+  through unchanged otherwise.
+- `runzero_scan_template`, `runzero_group`, `runzero_user` resources — `Create`
+  and `Update` functions now preserve the user's configured map values (`params`,
+  `org_roles`) in state instead of the full API response. `Read` functions now
+  filter API-returned maps to only include keys already in state, preventing
+  server-added defaults from accumulating in state and causing drift.
+
 ## [0.2.9] - 2026-10-13
 
 ### Fixed
@@ -296,7 +313,8 @@ Additional data sources:
   imperative actions (bulk asset operations, user resets, task logs and data) are out of
   scope for this provider.
 
-[Unreleased]: https://github.com/petrutb/terraform-provider-runzero/compare/v0.2.9...HEAD
+[Unreleased]: https://github.com/petrutb/terraform-provider-runzero/compare/v0.2.10...HEAD
+[0.2.10]: https://github.com/petrutb/terraform-provider-runzero/compare/v0.2.9...v0.2.10
 [0.2.9]: https://github.com/petrutb/terraform-provider-runzero/compare/v0.2.8...v0.2.9
 [0.2.8]: https://github.com/petrutb/terraform-provider-runzero/compare/v0.2.7...v0.2.8
 [0.2.7]: https://github.com/petrutb/terraform-provider-runzero/compare/v0.2.6...v0.2.7

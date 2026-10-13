@@ -161,7 +161,9 @@ func (r *UserResource) Create(ctx context.Context, req resource.CreateRequest, r
 		return
 	}
 
+	configOrgRoles := plan.OrgRoles
 	mapUserToState(user, &plan)
+	plan.OrgRoles = configOrgRoles
 	tflog.Trace(ctx, "created user", map[string]interface{}{"id": user.ID})
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
@@ -184,7 +186,11 @@ func (r *UserResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		return
 	}
 
+	priorOrgRoles := state.OrgRoles
 	mapUserToState(user, &state)
+	if !priorOrgRoles.IsNull() && !priorOrgRoles.IsUnknown() {
+		state.OrgRoles = filterMapToKeys(ctx, state.OrgRoles, priorOrgRoles, &resp.Diagnostics)
+	}
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
 
@@ -219,7 +225,9 @@ func (r *UserResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		return
 	}
 
+	configOrgRoles := plan.OrgRoles
 	mapUserToState(user, &plan)
+	plan.OrgRoles = configOrgRoles
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 

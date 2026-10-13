@@ -65,7 +65,7 @@ func TestServerEnrichedMap_ConfigUnknown(t *testing.T) {
 	}
 }
 
-func TestServerEnrichedMap_MergeNoChange(t *testing.T) {
+func TestServerEnrichedMap_ConfigKnown_PassesThrough(t *testing.T) {
 	ctx := context.Background()
 	stateVal, _ := types.MapValueFrom(ctx, types.StringType, map[string]string{
 		"rate":       "1000",
@@ -82,12 +82,12 @@ func TestServerEnrichedMap_MergeNoChange(t *testing.T) {
 	resp := &planmodifier.MapResponse{PlanValue: req.PlanValue}
 	planmodifiers.ServerEnrichedMap().PlanModifyMap(ctx, req, resp)
 
-	if !resp.PlanValue.Equal(stateVal) {
-		t.Errorf("expected merged map with server keys preserved, got %v", resp.PlanValue)
+	if !resp.PlanValue.Equal(configVal) {
+		t.Errorf("expected config passthrough when config is known, got %v", resp.PlanValue)
 	}
 }
 
-func TestServerEnrichedMap_MergeOverride(t *testing.T) {
+func TestServerEnrichedMap_ConfigChanged_PassesThrough(t *testing.T) {
 	ctx := context.Background()
 	stateVal, _ := types.MapValueFrom(ctx, types.StringType, map[string]string{
 		"rate":       "1000",
@@ -96,10 +96,6 @@ func TestServerEnrichedMap_MergeOverride(t *testing.T) {
 	configVal, _ := types.MapValueFrom(ctx, types.StringType, map[string]string{
 		"rate": "2000",
 	})
-	expected, _ := types.MapValueFrom(ctx, types.StringType, map[string]string{
-		"rate":       "2000",
-		"server-key": "default",
-	})
 	req := planmodifier.MapRequest{
 		StateValue:  stateVal,
 		ConfigValue: configVal,
@@ -108,55 +104,7 @@ func TestServerEnrichedMap_MergeOverride(t *testing.T) {
 	resp := &planmodifier.MapResponse{PlanValue: req.PlanValue}
 	planmodifiers.ServerEnrichedMap().PlanModifyMap(ctx, req, resp)
 
-	if !resp.PlanValue.Equal(expected) {
-		t.Errorf("expected user override merged with server keys, got %v", resp.PlanValue)
-	}
-}
-
-func TestServerEnrichedMap_MergeAddKey(t *testing.T) {
-	ctx := context.Background()
-	stateVal, _ := types.MapValueFrom(ctx, types.StringType, map[string]string{
-		"rate":       "1000",
-		"server-key": "default",
-	})
-	configVal, _ := types.MapValueFrom(ctx, types.StringType, map[string]string{
-		"rate":    "1000",
-		"new-key": "val",
-	})
-	expected, _ := types.MapValueFrom(ctx, types.StringType, map[string]string{
-		"rate":       "1000",
-		"server-key": "default",
-		"new-key":    "val",
-	})
-	req := planmodifier.MapRequest{
-		StateValue:  stateVal,
-		ConfigValue: configVal,
-		PlanValue:   configVal,
-	}
-	resp := &planmodifier.MapResponse{PlanValue: req.PlanValue}
-	planmodifiers.ServerEnrichedMap().PlanModifyMap(ctx, req, resp)
-
-	if !resp.PlanValue.Equal(expected) {
-		t.Errorf("expected new key added with server keys preserved, got %v", resp.PlanValue)
-	}
-}
-
-func TestServerEnrichedMap_MergeRemoveKey(t *testing.T) {
-	ctx := context.Background()
-	stateVal, _ := types.MapValueFrom(ctx, types.StringType, map[string]string{
-		"rate":       "1000",
-		"server-key": "default",
-	})
-	configVal, _ := types.MapValueFrom(ctx, types.StringType, map[string]string{})
-	req := planmodifier.MapRequest{
-		StateValue:  stateVal,
-		ConfigValue: configVal,
-		PlanValue:   configVal,
-	}
-	resp := &planmodifier.MapResponse{PlanValue: req.PlanValue}
-	planmodifiers.ServerEnrichedMap().PlanModifyMap(ctx, req, resp)
-
-	if !resp.PlanValue.Equal(stateVal) {
-		t.Errorf("expected state preserved when user removes keys from config, got %v", resp.PlanValue)
+	if !resp.PlanValue.Equal(configVal) {
+		t.Errorf("expected config passthrough when config changed, got %v", resp.PlanValue)
 	}
 }
