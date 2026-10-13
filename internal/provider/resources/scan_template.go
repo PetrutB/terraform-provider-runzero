@@ -19,6 +19,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"github.com/petrutb/terraform-provider-runzero/internal/client"
+	"github.com/petrutb/terraform-provider-runzero/internal/provider/planmodifiers"
 )
 
 var (
@@ -90,6 +91,9 @@ func (r *ScanTemplateResource) Schema(_ context.Context, _ resource.SchemaReques
 				Optional:    true,
 				Computed:    true,
 				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Map{
+					planmodifiers.ServerEnrichedMap(),
+				},
 			},
 			"organization_id": schema.StringAttribute{
 				Description: "The organization ID for the scan template.",

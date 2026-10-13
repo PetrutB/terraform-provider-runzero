@@ -5,6 +5,24 @@ All notable changes to the RunZero Terraform provider are documented in this fil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.6] - 2026-10-13
+
+### Added
+
+- Custom `ServerEnrichedMap()` plan modifier to handle API-enriched map attributes.
+  Merges user-configured keys on top of server-added defaults, preventing Terraform
+  drift when the API returns additional keys beyond what the user specified.
+
+### Fixed
+
+- `runzero_scan_template` resource — `params` no longer causes spurious plan diffs
+  ("element X has vanished" / "new element Y has appeared") when the API enriches the
+  map with server-side default scan parameters.
+- `runzero_group` resource — added `ServerEnrichedMap()` to `org_roles` to prevent
+  potential drift if the API enriches the org-role map with additional entries.
+- `runzero_user` resource — added `ServerEnrichedMap()` to `org_roles` for the same
+  reason as `runzero_group`.
+
 ## [0.2.5] - 2026-10-13
 
 ### Added
@@ -244,7 +262,8 @@ Additional data sources:
   imperative actions (bulk asset operations, user resets, task logs and data) are out of
   scope for this provider.
 
-[Unreleased]: https://github.com/petrutb/terraform-provider-runzero/compare/v0.2.5...HEAD
+[Unreleased]: https://github.com/petrutb/terraform-provider-runzero/compare/v0.2.6...HEAD
+[0.2.6]: https://github.com/petrutb/terraform-provider-runzero/compare/v0.2.5...v0.2.6
 [0.2.5]: https://github.com/petrutb/terraform-provider-runzero/compare/v0.2.4...v0.2.5
 [0.2.4]: https://github.com/petrutb/terraform-provider-runzero/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/petrutb/terraform-provider-runzero/compare/v0.2.2...v0.2.3
