@@ -13,11 +13,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-
-	"github.com/petrutb/terraform-provider-runzero/internal/provider/planmodifiers"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"github.com/petrutb/terraform-provider-runzero/internal/client"
+	"github.com/petrutb/terraform-provider-runzero/internal/provider/planmodifiers"
 )
 
 var (
