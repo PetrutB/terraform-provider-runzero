@@ -23,6 +23,24 @@ func TestServerEnrichedMap_Create(t *testing.T) {
 	resp := &planmodifier.MapResponse{PlanValue: req.PlanValue}
 	planmodifiers.ServerEnrichedMap().PlanModifyMap(ctx, req, resp)
 
+	if !resp.PlanValue.Equal(configVal) {
+		t.Errorf("expected config passthrough on create, got %v", resp.PlanValue)
+	}
+}
+
+func TestServerEnrichedMapUnknownOnCreate(t *testing.T) {
+	ctx := context.Background()
+	configVal, _ := types.MapValueFrom(ctx, types.StringType, map[string]string{
+		"rate": "1000",
+	})
+	req := planmodifier.MapRequest{
+		StateValue:  types.MapNull(types.StringType),
+		ConfigValue: configVal,
+		PlanValue:   configVal,
+	}
+	resp := &planmodifier.MapResponse{PlanValue: req.PlanValue}
+	planmodifiers.ServerEnrichedMapUnknownOnCreate().PlanModifyMap(ctx, req, resp)
+
 	if !resp.PlanValue.IsUnknown() {
 		t.Errorf("expected unknown on create (server will enrich), got %v", resp.PlanValue)
 	}

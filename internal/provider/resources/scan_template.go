@@ -92,7 +92,7 @@ func (r *ScanTemplateResource) Schema(_ context.Context, _ resource.SchemaReques
 				Computed:    true,
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Map{
-					planmodifiers.ServerEnrichedMap(),
+					planmodifiers.ServerEnrichedMapUnknownOnCreate(),
 				},
 			},
 			"organization_id": schema.StringAttribute{
