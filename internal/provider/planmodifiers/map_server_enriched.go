@@ -24,6 +24,9 @@ func (m serverEnrichedMapModifier) MarkdownDescription(ctx context.Context) stri
 
 func (m serverEnrichedMapModifier) PlanModifyMap(_ context.Context, req planmodifier.MapRequest, resp *planmodifier.MapResponse) {
 	if req.StateValue.IsNull() {
+		if !req.ConfigValue.IsNull() && !req.ConfigValue.IsUnknown() {
+			resp.PlanValue = types.MapUnknown(types.StringType)
+		}
 		return
 	}
 
