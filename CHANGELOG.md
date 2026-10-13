@@ -5,12 +5,10 @@ All notable changes to the RunZero Terraform provider are documented in this fil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.2.4] - 2026-10-13
+## [0.2.5] - 2026-10-13
 
 ### Added
 
-- `runzero_scan_template` / `runzero_scan_templates` data sources — added `acl` field
-  (map of string) returned by the API but previously missing from the datasource schema.
 - `runzero_credential` / `runzero_credentials` data sources — added `acl` (map of string)
   and `cidrs` (list of string) fields returned by the API but previously missing.
 - `runzero_group` / `runzero_groups` data sources — added `org_roles` (map of string)
@@ -27,6 +25,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `Service` client struct — `Credentials` type changed from `map[string]string` to
+  `map[string]any` to match Swagger `additionalProperties` with nested properties,
+  consistent with the `Asset` struct. `Attributes` type changed from `map[string]any`
+  to `map[string]string` to match Swagger `additionalProperties: { type: string }`,
+  consistent with the `Asset` struct.
+- `runzero_asset` resource — `risk_rank` changed from `Int64` to `Float64` to match
+  the Swagger `type: number` definition and the client struct's `float64` type.
+
+## [0.2.4] - 2026-10-13
+
+### Added
+
+- `runzero_scan_template` / `runzero_scan_templates` data sources — added `acl` field
+  (map of string) returned by the API but previously missing from the datasource schema.
+
+### Fixed
+
 - `Service` client struct — added 25 missing fields from the Swagger `Service` schema:
   `service_screenshot_link`, `detected_by`, `os_version`, `addresses_extra`,
   `mac_vendors`, `service_count`, `service_count_tcp`, `service_count_udp`,
@@ -37,13 +52,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Scan` client struct — added 8 missing fields from the Swagger `TaskBase` schema:
   `template_id`, `cruncher_id`, `created_by_user_id`, `custom_integration_id`,
   `source_id`, `stats`, `parent_id`, `recur_last_task_id`.
-- `Service` client struct — `Credentials` type changed from `map[string]string` to
-  `map[string]any` to match Swagger `additionalProperties` with nested properties,
-  consistent with the `Asset` struct. `Attributes` type changed from `map[string]any`
-  to `map[string]string` to match Swagger `additionalProperties: { type: string }`,
-  consistent with the `Asset` struct.
-- `runzero_asset` resource — `risk_rank` changed from `Int64` to `Float64` to match
-  the Swagger `type: number` definition and the client struct's `float64` type.
 
 ### Audit
 
@@ -236,7 +244,8 @@ Additional data sources:
   imperative actions (bulk asset operations, user resets, task logs and data) are out of
   scope for this provider.
 
-[Unreleased]: https://github.com/petrutb/terraform-provider-runzero/compare/v0.2.4...HEAD
+[Unreleased]: https://github.com/petrutb/terraform-provider-runzero/compare/v0.2.5...HEAD
+[0.2.5]: https://github.com/petrutb/terraform-provider-runzero/compare/v0.2.4...v0.2.5
 [0.2.4]: https://github.com/petrutb/terraform-provider-runzero/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/petrutb/terraform-provider-runzero/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/petrutb/terraform-provider-runzero/compare/v0.2.1...v0.2.2
