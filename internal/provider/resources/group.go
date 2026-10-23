@@ -161,7 +161,9 @@ func (r *GroupResource) Create(ctx context.Context, req resource.CreateRequest, 
 
 	configOrgRoles := plan.OrgRoles
 	mapGroupToState(ctx, group, &plan)
-	plan.OrgRoles = configOrgRoles
+	if !configOrgRoles.IsUnknown() {
+		plan.OrgRoles = configOrgRoles
+	}
 	tflog.Trace(ctx, "created group", map[string]interface{}{"id": group.ID})
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
@@ -225,7 +227,9 @@ func (r *GroupResource) Update(ctx context.Context, req resource.UpdateRequest, 
 
 	configOrgRoles := plan.OrgRoles
 	mapGroupToState(ctx, group, &plan)
-	plan.OrgRoles = configOrgRoles
+	if !configOrgRoles.IsUnknown() {
+		plan.OrgRoles = configOrgRoles
+	}
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 
